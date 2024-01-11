@@ -21,14 +21,16 @@
  *    getIntervalArray(3, 3) => [ 3 ]
  */
 function getIntervalArray(start, end) {
-  if (start > end) {
-    [start, end] = [end, start];
+  let [low, high] = [start, end];
+
+  if (low > high) {
+    [low, high] = [high, low];
   }
 
-  const result = new Array(end - start + 1).fill(0);
+  const result = new Array(high - low + 1).fill(0);
 
   for (let i = 0; i < result.length; i += 1) {
-    result[i] = start + i;
+    result[i] = low + i;
   }
 
   return result;
@@ -76,9 +78,9 @@ function sumArrays(arr1, arr2) {
  */
 
 function findElement(arr, value) {
-  for (const element of arr) {
-    if (element === value) {
-      return arr.indexOf(element);
+  for (let i = 0; i < arr.length; i += 1) {
+    if (arr[i] === value) {
+      return i;
     }
   }
 
@@ -102,8 +104,8 @@ function findElement(arr, value) {
 function findAllOccurrences(arr, item) {
   let count = 0;
 
-  for (const element of arr) {
-    if (element === item) {
+  for (let i = 0; i < arr.length; i += 1) {
+    if (arr === item) {
       count += 1;
     }
   }
@@ -124,7 +126,7 @@ function findAllOccurrences(arr, item) {
  *    removeFalsyValues([ false, 0, NaN, '', undefined ]) => [ ]
  */
 function removeFalsyValues(arr) {
-  return arr.filter(element => element);
+  return arr.filter((element) => element);
 }
 
 /**
@@ -139,7 +141,7 @@ function removeFalsyValues(arr) {
  */
 function getStringsLength(arr) {
   // Use the map method to create an array of string lengths
-  return arr.map(str => str.length);
+  return arr.map((str) => str.length);
 }
 
 /**
@@ -163,7 +165,10 @@ function getAverage(arr) {
   }
 
   // Calculate the sum of all elements
-  const sum = arr.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  const sum = arr.reduce(
+    (accumulator, currentValue) => accumulator + currentValue,
+    0
+  );
 
   // Calculate the average and round to two decimal places
   const average = Math.round((sum / arr.length) * 100) / 100;
@@ -183,7 +188,7 @@ function getAverage(arr) {
  */
 function isSameLength(arr) {
   const firstLength = arr[0].length;
-  return arr.every(str => str.length === firstLength);
+  return arr.every((str) => str.length === firstLength);
 }
 
 /**
@@ -369,11 +374,10 @@ function selectMany(arr, childrenSelector) {
  *   calculateBalance([ [ 10, 8 ], [ 1, 5 ] ])  => (10 - 8) + (1 - 5) = 2 + -4 = -2
  *   calculateBalance([]) => 0
  */
-  // Accumulate the balance by iterating through each month's income and expenses
-  return arr.reduce((balance, [income, expense]) => {
-    return balance + income - expense;
-  }, 0);
-
+function calculateBalance(arr) {
+  const middle = Math.floor(arr.length / 2);
+  return [...arr.slice(middle), ...arr.slice(0, middle)];
+}
 
 /**
  * Breaks an array into chunks of the specified size.
@@ -462,9 +466,11 @@ function getFalsyValuesCount(arr) {
  *                              [0,0,0,0,1]]
  */
 function getIdentityMatrix(n) {
-  const matrix = Array(n).fill(0).map(() => Array(n).fill(0));
+  const matrix = Array(n)
+    .fill(0)
+    .map(() => Array(n).fill(0));
 
-  for (let i = 0; i < n; i +=1) {
+  for (let i = 0; i < n; i += 1) {
     matrix[i][i] = 1;
   }
 
@@ -504,10 +510,10 @@ function getIndicesOfOddNumbers(numbers) {
  */
 function getHexRGBValues(arr) {
   // Ensure numbers are within the valid RGB range (0-16777215)
-  const clamped = arr.map(num => Math.max(0, Math.min(16777215, num)));
+  const clamped = arr.map((num) => Math.max(0, Math.min(16777215, num)));
 
   // Convert each number to a 6-digit hex string with leading zeros
-  return clamped.map(num => num.toString(16).padStart(6, '0'));
+  return clamped.map((num) => num.toString(16).padStart(6, '0'));
 }
 
 /**
@@ -525,7 +531,10 @@ function getHexRGBValues(arr) {
  *   getMaxItems([ 10, 10, 10, 10 ], 3) => [ 10, 10, 10 ]
  */
 function getMaxItems(arr, n) {
-  return arr.slice().sort((a, b) => b - a).slice(0, n);
+  return arr
+    .slice()
+    .sort((a, b) => b - a)
+    .slice(0, n);
 }
 
 /**
@@ -543,7 +552,7 @@ function getMaxItems(arr, n) {
 function findCommonElements(arr1, arr2) {
   const seen = new Set(arr1);
 
-  return arr2.filter(value => seen.has(value));
+  return arr2.filter((value) => seen.has(value));
 }
 
 /**
@@ -560,8 +569,8 @@ function findCommonElements(arr1, arr2) {
 function findLongestIncreasingSubsequence(nums) {
   const dp = new Array(nums.length).fill(1);
 
-  for (let i = 1; i < nums.length; i +=1) {
-    for (let j = 0; j < i; j +=1) {
+  for (let i = 1; i < nums.length; i += 1) {
+    for (let j = 0; j < i; j += 1) {
       if (nums[i] > nums[j]) {
         dp[i] = Math.max(dp[i], dp[j] + 1);
       }
@@ -603,9 +612,11 @@ function propagateItemsByPositionIndex(arr) {
  *    shiftArray([10, 20, 30, 40, 50], -3) => [40, 50, 10, 20, 30]
  */
 function shiftArray(arr, n) {
-  n = n % arr.length;
+  const adjustedN = n % arr.length;
 
-  return n > 0 ? arr.slice(-n).concat(arr.slice(0, -n)) : arr.slice(n).concat(arr.slice(0, n));
+  return adjustedN > 0
+    ? arr.slice(-adjustedN).concat(arr.slice(0, -adjustedN))
+    : arr.slice(adjustedN).concat(arr.slice(0, adjustedN));
 }
 
 /**
@@ -635,7 +646,9 @@ function sortDigitNamesByNumericOrder(arr) {
     nine: 9,
   };
 
-  return arr.sort((a, b) => digitMap[a.toLowerCase()] - digitMap[b.toLowerCase()]);
+  return arr.sort(
+    (a, b) => digitMap[a.toLowerCase()] - digitMap[b.toLowerCase()]
+  );
 }
 /**
  * Swaps the head and tail of the specified array:
@@ -656,10 +669,10 @@ function sortDigitNamesByNumericOrder(arr) {
  *   swapHeadAndTail([]) => []
  *
  */
-function swapHeadAndTail(arr) {
+function swapHeadAndTaill(arr) {
   const middle = Math.floor(arr.length / 2);
 
-  return [...arr.slice(middle), ...arr.slice(0, middle)];
+  return [...arr.slice(0, middle), ...arr.slice(middle)];
 }
 
 module.exports = {
@@ -695,5 +708,5 @@ module.exports = {
   propagateItemsByPositionIndex,
   shiftArray,
   sortDigitNamesByNumericOrder,
-  swapHeadAndTail,
+  swapHeadAndTaill,
 };
