@@ -21,19 +21,7 @@
  *    getIntervalArray(3, 3) => [ 3 ]
  */
 function getIntervalArray(start, end) {
-  let [low, high] = [start, end];
-
-  if (low > high) {
-    [low, high] = [high, low];
-  }
-
-  const result = new Array(high - low + 1).fill(0);
-
-  for (let i = 0; i < result.length; i += 1) {
-    result[i] = low + i;
-  }
-
-  return result;
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index);
 }
 
 /**
@@ -78,13 +66,7 @@ function sumArrays(arr1, arr2) {
  */
 
 function findElement(arr, value) {
-  for (let i = 0; i < arr.length; i += 1) {
-    if (arr[i] === value) {
-      return i;
-    }
-  }
-
-  return -1;
+  return arr.indexOf(value);
 }
 
 /**
@@ -105,7 +87,7 @@ function findAllOccurrences(arr, item) {
   let count = 0;
 
   for (let i = 0; i < arr.length; i += 1) {
-    if (arr === item) {
+    if (arr[i] === item) {
       count += 1;
     }
   }
@@ -222,9 +204,9 @@ function insertItem(arr, item, index) {
     return arr;
   }
 
-  const newArr = [...arr.slice(0, index), item, ...arr.slice(index)];
+  arr.splice(index, 0, item);
 
-  return newArr;
+  return arr;
 }
 
 /**
@@ -254,7 +236,11 @@ function getHead(arr, n) {
  *    getTail([ 'a', 'b', 'c', 'd'], 0) => []
  */
 function getTail(arr, n) {
-  return n >= arr.length ? arr : arr.slice(-n);
+  if (arr.length === 0 || n <= 0) {
+    return [];
+  }
+
+  return n > arr.length ? arr : arr.slice(-n);
 }
 
 /**
@@ -270,7 +256,7 @@ function getTail(arr, n) {
  *    doubleArray([]) => []
  */
 function doubleArray(arr) {
-  return [...arr, ...arr];
+  return arr.concat(arr);
 }
 
 /**
@@ -375,8 +361,13 @@ function selectMany(arr, childrenSelector) {
  *   calculateBalance([]) => 0
  */
 function calculateBalance(arr) {
-  const middle = Math.floor(arr.length / 2);
-  return [...arr.slice(middle), ...arr.slice(0, middle)];
+  let balance = 0;
+
+  arr.forEach(([income, expense]) => {
+    balance += income - expense;
+  });
+
+  return balance;
 }
 
 /**
@@ -444,7 +435,7 @@ function getElementByIndices(arr, indices) {
  *  getFalsyValuesCount([ null, undefined, NaN, false, 0, '' ]) => 6
  */
 function getFalsyValuesCount(arr) {
-  return arr.filter(Boolean).length;
+  return arr.reduce((count, item) => count + !item, 0);
 }
 
 /**
@@ -489,7 +480,6 @@ function getIdentityMatrix(n) {
  *    getIndicesOfOddNumbers([11, 22, 33, 44, 55]) => [0, 2, 4]
  */
 function getIndicesOfOddNumbers(numbers) {
-  // Use filter to keep indices of odd numbers and return the result
   return numbers.reduce((indices, number, index) => {
     if (number % 2 !== 0) {
       indices.push(index);
@@ -509,11 +499,9 @@ function getIndicesOfOddNumbers(numbers) {
  *    getHexRGBValues([]) => []
  */
 function getHexRGBValues(arr) {
-  // Ensure numbers are within the valid RGB range (0-16777215)
   const clamped = arr.map((num) => Math.max(0, Math.min(16777215, num)));
 
-  // Convert each number to a 6-digit hex string with leading zeros
-  return clamped.map((num) => num.toString(16).padStart(6, '0'));
+  return clamped.map((num) => `#${num.toString(16).padStart(6, '0')}`);
 }
 
 /**
@@ -612,11 +600,14 @@ function propagateItemsByPositionIndex(arr) {
  *    shiftArray([10, 20, 30, 40, 50], -3) => [40, 50, 10, 20, 30]
  */
 function shiftArray(arr, n) {
-  const adjustedN = n % arr.length;
+  const len = arr.length;
 
-  return adjustedN > 0
-    ? arr.slice(-adjustedN).concat(arr.slice(0, -adjustedN))
-    : arr.slice(adjustedN).concat(arr.slice(0, adjustedN));
+  const shiftAmount = n % len;
+
+  if (shiftAmount < 0) {
+    return arr.slice(-shiftAmount).concat(arr.slice(0, len + shiftAmount));
+  }
+  return arr.slice(len - shiftAmount).concat(arr.slice(0, len - shiftAmount));
 }
 
 /**
@@ -670,9 +661,19 @@ function sortDigitNamesByNumericOrder(arr) {
  *
  */
 function swapHeadAndTaill(arr) {
-  const middle = Math.floor(arr.length / 2);
+  const len = arr.length;
+  if (len <= 1) {
+    return arr;
+  }
 
-  return [...arr.slice(0, middle), ...arr.slice(middle)];
+  const middle = Math.floor(len / 2);
+  const head = arr.slice(0, middle);
+  const tail = arr.slice(-middle);
+
+  if (len % 2 === 0) {
+    return tail.concat(arr[middle], head);
+  }
+  return tail.concat(head);
 }
 
 module.exports = {
