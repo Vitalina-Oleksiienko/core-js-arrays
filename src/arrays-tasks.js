@@ -84,15 +84,7 @@ function findElement(arr, value) {
  *    findAllOccurrences([ true, 0, 1, 'true' ], true) => 1
  */
 function findAllOccurrences(arr, item) {
-  let count = 0;
-
-  for (let i = 0; i < arr.length; i += 1) {
-    if (arr[i] === item) {
-      count += 1;
-    }
-  }
-
-  return count;
+  return arr.reduce((acc, elem) => acc + (item === elem) * 1, 0);
 }
 
 /**
@@ -361,13 +353,7 @@ function selectMany(arr, childrenSelector) {
  *   calculateBalance([]) => 0
  */
 function calculateBalance(arr) {
-  let balance = 0;
-
-  arr.forEach(([income, expense]) => {
-    balance += income - expense;
-  });
-
-  return balance;
+  return arr.reduce((acc, elem) => acc + elem[0] - elem[1], 0);
 }
 
 /**
@@ -383,11 +369,11 @@ function calculateBalance(arr) {
  *    createChunks([10, 20, 30, 40, 50], 1) => [[10], [20], [30], [40], [50]]
  */
 function createChunks(arr, chunkSize) {
-  const chunks = [];
-  for (let i = 0; i < arr.length; i += chunkSize) {
-    chunks.push(arr.slice(i, i + chunkSize));
-  }
-  return chunks;
+  return Array(Math.ceil(arr.length / chunkSize))
+    .fill(0)
+    .map((elem, index) =>
+      arr.slice(index * chunkSize, index * chunkSize + chunkSize)
+    );
 }
 
 /**
@@ -457,15 +443,9 @@ function getFalsyValuesCount(arr) {
  *                              [0,0,0,0,1]]
  */
 function getIdentityMatrix(n) {
-  const matrix = Array(n)
-    .fill(0)
-    .map(() => Array(n).fill(0));
-
-  for (let i = 0; i < n; i += 1) {
-    matrix[i][i] = 1;
-  }
-
-  return matrix;
+  return new Array(n)
+    .fill(new Array(n).fill(n))
+    .map((item, index) => item.map((_, ind) => (ind === index ? 1 : 0)));
 }
 
 /**
@@ -499,9 +479,9 @@ function getIndicesOfOddNumbers(numbers) {
  *    getHexRGBValues([]) => []
  */
 function getHexRGBValues(arr) {
-  const clamped = arr.map((num) => Math.max(0, Math.min(16777215, num)));
-
-  return clamped.map((num) => `#${num.toString(16).padStart(6, '0')}`);
+  return arr.map(
+    (num) => `#${num.toString(16).padStart(6, '0').toUpperCase()}`
+  );
 }
 
 /**
@@ -555,17 +535,19 @@ function findCommonElements(arr1, arr2) {
  *    findLongestIncreasingSubsequence([50, 3, 10, 7, 40, 80]) => 3
  */
 function findLongestIncreasingSubsequence(nums) {
-  const dp = new Array(nums.length).fill(1);
-
-  for (let i = 1; i < nums.length; i += 1) {
-    for (let j = 0; j < i; j += 1) {
-      if (nums[i] > nums[j]) {
-        dp[i] = Math.max(dp[i], dp[j] + 1);
-      }
+  let dp = nums[0];
+  let length = 0;
+  const result = nums.map((el) => {
+    if (el >= dp) {
+      length += 1;
+    } else {
+      length = 1;
     }
-  }
+    dp = el;
+    return length;
+  });
 
-  return Math.max(...dp);
+  return result.sort((a, b) => b - a)[0];
 }
 
 /**
@@ -600,14 +582,7 @@ function propagateItemsByPositionIndex(arr) {
  *    shiftArray([10, 20, 30, 40, 50], -3) => [40, 50, 10, 20, 30]
  */
 function shiftArray(arr, n) {
-  const len = arr.length;
-
-  const shiftAmount = n % len;
-
-  if (shiftAmount < 0) {
-    return arr.slice(-shiftAmount).concat(arr.slice(0, len + shiftAmount));
-  }
-  return arr.slice(len - shiftAmount).concat(arr.slice(0, len - shiftAmount));
+  return arr.slice(-n, arr.length).concat(arr.slice(0, -n));
 }
 
 /**
@@ -660,20 +635,19 @@ function sortDigitNamesByNumericOrder(arr) {
  *   swapHeadAndTail([]) => []
  *
  */
-function swapHeadAndTaill(arr) {
-  const len = arr.length;
-  if (len <= 1) {
-    return arr;
-  }
-
-  const middle = Math.floor(len / 2);
+function swapHeadAndTail(arr) {
+  const middle = Math.floor(arr.length / 2);
   const head = arr.slice(0, middle);
   const tail = arr.slice(-middle);
 
-  if (len % 2 === 0) {
-    return tail.concat(arr[middle], head);
+  if (arr.length <= 1) {
+    return arr;
   }
-  return tail.concat(head);
+
+  if (arr.length % 2 === 0) {
+    return tail.concat(head);
+  }
+  return tail.concat(arr[middle], head);
 }
 
 module.exports = {
@@ -709,5 +683,5 @@ module.exports = {
   propagateItemsByPositionIndex,
   shiftArray,
   sortDigitNamesByNumericOrder,
-  swapHeadAndTaill,
+  swapHeadAndTail,
 };
